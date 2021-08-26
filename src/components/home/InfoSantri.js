@@ -4,26 +4,26 @@ import Scale from "../../transforms/Scale";
 import info from "../../api/Home/InfoSantri"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const InfoSantri = () => {
-    const [infoSantri, setInfoSantri] = useState([])
-    const infoApi = async () => {
-        try{
-            let id = await AsyncStorage.getItem('@nis')
-            const response = await info.get(`santri/${id}`)
-            console.log(response.data)
-            setInfoSantri(response.data.santri)
-        }catch(error){
-            console.log(error)
-        }
-    }
-    useEffect(() => {
-        infoApi()
-    }, [])
+const InfoSantri = ({nama_santri,nis,nama_kelas}) => {
+    // const [infoSantri, setInfoSantri] = useState([])
+    // const infoApi = async () => {
+    //     try{
+    //         let id = await AsyncStorage.getItem('@nis')
+    //         const response = await info.get(`santri/${id}`)
+    //         console.log(response.data)
+    //         setInfoSantri(response.data.santri)
+    //     }catch(error){
+    //         console.log(error)
+    //     }
+    // }
+    // useEffect(() => {
+    //     infoApi()
+    // }, [])
     return (
         <View style={styles.santriContainer}>
-            <Text style={styles.infoSantri}>{infoSantri.nama_santri}</Text>
-            <Text style={styles.infoSantri}>{infoSantri.nis}</Text>
-            <Text style={styles.infoSantri}>{infoSantri.nama_kelas}</Text>
+            <Text style={styles.infoSantri}>{nama_santri}</Text>
+            <Text style={styles.infoSantri}>{nis}</Text>
+            <Text style={styles.infoSantri}>{nama_kelas}</Text>
         </View>
     )
 }

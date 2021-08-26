@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, SafeAreaView, TextInput, Button, View, Modal, Text, Pressable } from "react-native";
+import { StyleSheet, SafeAreaView, TextInput, TouchableOpacity, View, Modal, Text, Pressable } from "react-native";
 import { Picker } from '@react-native-picker/picker';
 import Scale from "../../../transforms/Scale";
 import payment from "../../../api/Payment/Payment";
@@ -10,7 +10,7 @@ const PaymentScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedValue, setSelectedValue] = useState("1")
   // const [nis, setNis] = useState('');
-  const [jumlah_bulan, setJumlahBulan] = useState('');
+  const [jumlah_bulan, setJumlahBulan] = useState('1');
   const [spp, setSpp] = useState(35000);
   const [infaq, setInfaq] = useState(15000);
   const [total_transfer, setTotalTransfer] = useState(spp + infaq);
@@ -25,15 +25,17 @@ const PaymentScreen = ({navigation}) => {
         jumlah_bulan: parseInt(jumlah_bulan),
         spp: parseInt(spp),
         infaq: parseInt(infaq),
-        total_transfer: parseInt(total_transfer),
+        total_transfer: parseInt(total_transfer + kode_transfer),
       });
-
+      console.log(response.data);
+      setTotalTransfer(response.data.total_transfer)
       setModalVisible(true);
       setKodeTransfer(response.data.kode_transfer);
       // AsyncStorage.setItem("@kode_unik", response.data.kode_transfer);
 
     } catch (error) {
-      setErrorMessage('Bulan wajib diisi')
+      console.log(error)
+      setErrorMessage('Kode unik sudah penuh')
     }
   }
 
@@ -42,15 +44,15 @@ const PaymentScreen = ({navigation}) => {
   // };
 
   const handleChangeBulan = (val = 0) => {
-    let month = val === '' ? 1 : parseInt(val)
+    setJumlahBulan(val);
+    let month = val
     let valSpp = month * 35000
     let valInfaq = month * 15000
-    let total = valSpp + valInfaq
+    let total = (valSpp + valInfaq)
+    setSpp(valSpp.toString())
+    setInfaq(valInfaq.toString())
+    setTotalTransfer(total.toString())
     console.log(month, spp, infaq, isNaN(val), val)
-    setSpp(valSpp)
-    setInfaq(valInfaq)
-    setTotalTransfer(total)
-    setJumlahBulan(month);
   };
 
   const handleChangeSpp = (val) => {
@@ -91,6 +93,8 @@ const PaymentScreen = ({navigation}) => {
             <Text style={[styles.modalText, {fontSize: 20}]}>Kode Unik</Text>
             <Text style={[styles.modalText, {fontSize: 40, color: '#666666'}]}>{kode_transfer}</Text>
             <Text style={[styles.modalText, {fontSize: 10, color: '#666666'}]}>Kode unik hanya berlaku 1 hari</Text>
+            <Text style={[styles.modalText, {fontSize: 20}]}>Nominal Transfer</Text>
+            <Text style={[styles.modalText, {fontSize: 40, color: '#666666'}]}>{total_transfer}</Text>
             <Pressable
               style={[styles.button, styles.buttonLanjut]}
               onPress={() => {
@@ -121,10 +125,11 @@ const PaymentScreen = ({navigation}) => {
             onChangeText={handleChangeNis}
             value={nis}
           /> */}
-          {/* <Picker style={styles.input}
+          <Text style={styles.textStyle}>Jumlah Bulan</Text>
+          <Picker style={{borderColor: '#E8E8E8'}}
             ref={pickerRef}
             selectedValue={jumlah_bulan}
-            style={{}}
+            defaultValue="1"
             onValueChange={handleChangeBulan}
           >
             <Picker.Item label="1" value="1" />
@@ -139,8 +144,8 @@ const PaymentScreen = ({navigation}) => {
             <Picker.Item label="10" value="10" />
             <Picker.Item label="11" value="11" />
             <Picker.Item label="12" value="12" />
-          </Picker> */}
-          <TextInput style={[styles.input, {marginTop: 20}]}
+          </Picker>
+          {/* <TextInput style={[styles.input, {marginTop: 20}]}
             defaultValue={0}
             placeholder='Masukkan Jumlah Bulan'
             keyboardType='numeric'
@@ -148,7 +153,8 @@ const PaymentScreen = ({navigation}) => {
             returnKeyType='next'
             onChangeText={handleChangeBulan}
             value={jumlah_bulan.toString()}
-          />
+          /> */}
+          <Text style={styles.textStyle}>Jumlah SPP</Text>
           <TextInput style={styles.input}
             placeholder='SPP'
             keyboardType='numeric'
@@ -157,6 +163,7 @@ const PaymentScreen = ({navigation}) => {
             defaultValue="35000"
             value={spp.toString()}
           />
+          <Text style={styles.textStyle}>Jumlah Infaq</Text>
           <TextInput style={styles.input}
             placeholder='Infaq'
             keyboardType='numeric'
@@ -165,6 +172,7 @@ const PaymentScreen = ({navigation}) => {
             defaultValue="15000"
             value={infaq.toString()}
           />
+          <Text style={styles.textStyle}>Total Bayar</Text>
           <TextInput style={styles.input}
             placeholder='Total transfer'
             keyboardType='numeric'
@@ -173,12 +181,15 @@ const PaymentScreen = ({navigation}) => {
             defaultValue='50000'
             value={total_transfer.toString()}
           />
-          <Button
-            title="Lanjut"
-            color="#368756"
+          <TouchableOpacity
+            style={styles.button1}
             onPress={() => paymentApi()}
-          />
+          >
+            <Text style={styles.textStyle}>Lanjut</Text>
+          </TouchableOpacity>
         </View>
+        <View>
+      </View>
       </View>
     </SafeAreaView>
   );
@@ -228,6 +239,28 @@ const styles = StyleSheet.create({
   },
   buttonLanjut: {
     backgroundColor: "#368756",
+  },
+  buktiContainer: {
+    position : 'relative',
+    alignContent: 'center',
+    alignItems: 'center',
+    marginTop: Scale(200),
+    height: Scale(25),
+    marginHorizontal: Scale(20)
+  },
+  uploadBukti: {
+    fontSize: Scale(15),
+    textDecorationLine: 'underline',
+    fontWeight: 'bold',
+    color: 'blue'
+  },
+  button1: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    backgroundColor: "#368756",
+    alignItems: 'center',
+    marginVertical: 5
   }
 });
 

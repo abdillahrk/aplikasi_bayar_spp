@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {useState} from "react";
-import { Text, StyleSheet, View, SafeAreaView, StatusBar, Button, Pressable, TextInput, Modal } from "react-native";
+import { Text, StyleSheet, View, SafeAreaView, StatusBar, Button, Pressable, TextInput, Modal, ToastAndroid, TouchableOpacity} from "react-native";
 import changePassword from "../../../api/Settting/ChangePassword"
 import Scale from "../../../transforms/Scale";
 
@@ -8,7 +8,9 @@ const ChangePasswordScreen = (props) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [password, setPassword] = useState('');
     const [passwordBaru, setPasswordBaru] = useState('');
-    // const [passwordBaru2, setPasswordBaru2] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [c_passwordBaru, setCPasswordBaru] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     const changePasswordApi = async () => {
       try {
@@ -17,10 +19,11 @@ const ChangePasswordScreen = (props) => {
               password_lama: password,
               password_baru: passwordBaru
           });
-          console.log((await response).data);
+          console.log(response.data);
+          showToastWithGravity()
           props.navigation.navigate("SettingScreen")
       } catch (error) {
-          console.log(error);
+          setErrorMessage("Password Lama harus sesuai dan Password Baru harus diisi")
       }
     }
 
@@ -32,8 +35,15 @@ const ChangePasswordScreen = (props) => {
         setPasswordBaru(val);
     };
 
-    const handleChangePasswordBaru2 = (val) => {
-        setPasswordBaru2(val);
+    const handleChangeCPasswordBaru = (val) => {
+        setCPasswordBaru(val);
+    };
+    const showToastWithGravity = () => {
+      ToastAndroid.showWithGravity(
+        "Sandi telah diganti",
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER
+      );
     };
 
   return (
@@ -54,7 +64,13 @@ const ChangePasswordScreen = (props) => {
             <Text style={styles.modalText}>Yakin ingin mengubah Password Anda ?</Text>
             <Pressable
               style={[styles.button, styles.buttonLanjut]}
-              onPress={() => changePasswordApi()}
+              onPress={() => {
+              if(passwordBaru == c_passwordBaru){
+                changePasswordApi()
+              }else{
+                setErrorMessage('Samakan isian antara Password Baru dengan Konfirmasi Password')
+              }
+            }}
             >
               <Text style={styles.textStyle}>Ya</Text>
             </Pressable>
@@ -68,39 +84,45 @@ const ChangePasswordScreen = (props) => {
         </View>
       </Modal>
       <View>
+      {errorMessage? <Text style={{color: 'red'}}>{errorMessage}</Text>: null}
         <TextInput style={styles.input}
             placeholder='Password Saat Ini'
             keyboardType="default"
-            maxLength={9}
             returnKeyType='next'
             autoCorrect={false}
+            secureTextEntry={true}
             onChangeText={handleChangePasswordLama}
             value={password}
         />
         <TextInput style={styles.input}
             placeholder='Password Baru'
             keyboardType="default"
-            maxLength={9}
-            returnKeyType='next'
-            autoCorrect={false}
-            onChangeText={handleChangePasswordBaru}
-            value={passwordBaru}
-        />
-        {/* <TextInput style={styles.input}
-            placeholder='Ulangi Password Baru'
-            keyboardType="default"
-            maxLength={9}
             returnKeyType='next'
             autoCorrect={false}
             secureTextEntry={true}
-            onChangeText={handleChangePasswordBaru2}
-            value={passwordBaru2}
-        /> */}
-        <Button
+            onChangeText={handleChangePasswordBaru}
+            value={passwordBaru}
+        />
+        <TextInput style={styles.input}
+            placeholder='Ulangi Password Baru'
+            keyboardType="default"
+            returnKeyType='next'
+            autoCorrect={false}
+            secureTextEntry={true}
+            onChangeText={handleChangeCPasswordBaru}
+            value={c_passwordBaru}
+        />
+        {/* <Button
             title="Lanjut"
             color="#368756"
             onPress={() => setModalVisible(true)}
-          />
+          /> */}
+        <TouchableOpacity
+            style={styles.button1}
+            onPress={() => setModalVisible(true)}
+        >
+          <Text style={styles.textStyle}>Lanjut</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -162,6 +184,14 @@ const styles = StyleSheet.create({
   },
   buttonLanjut: {
     backgroundColor: "#368756"
+  },
+  button1: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    backgroundColor: "#368756",
+    alignItems: 'center',
+    marginVertical: 15
   }
 });
 

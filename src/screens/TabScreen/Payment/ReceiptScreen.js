@@ -1,26 +1,10 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, SafeAreaView, View, Text, Image, Platform, Button, TextInput, TouchableOpacity } from 'react-native';
+import { Pressable, StyleSheet, SafeAreaView, View, Text, Image, Platform, Button, TextInput, TouchableOpacity, ToastAndroid } from 'react-native';
 import Scale from "../../../transforms/Scale";
 import { launchImageLibrary } from 'react-native-image-picker';
 import receipt from "../../../api/Payment/Receipt";
 import upload from "../../../api/Payment/Upload"
 
-// const createFormData = (image, body = {}) => {
-//   let data = new FormData();
-//   data.append('image', image)
-
-//   data.append('photo', {
-//     name: photo.fileName,
-//     type: photo.type,
-//     uri: Platform.OS === 'ios' ? photo.uri.replace('file://', '') : photo.uri,
-//   });
-
-//   Object.keys(body).forEach((key) => {
-//     data.append(key, body[key]);
-//   });
-
-//   return data;
-// };
 
 const ReceiptScreen = ({ navigation }) => {
   const [photo, setPhoto] = useState(null);
@@ -32,19 +16,18 @@ const ReceiptScreen = ({ navigation }) => {
   }
 
   const handleChoosePhoto = () => {
-    console.log("button")
     const options = {
       mediaType: 'photo'
     }
     launchImageLibrary(options, (response) => {
-      if (response) {
+      console.log({ response })
+      if (response && response.hasOwnProperty('assets')) {
         setPhoto(response.assets[0]);
       }
     });
   };
 
   const handleUploadPhoto = async () => {
-    console.log('lalala')
     try {
       let data = new FormData();
       data.append('image', {
@@ -52,6 +35,7 @@ const ReceiptScreen = ({ navigation }) => {
         type: photo.type,
         uri: photo.uri
       })
+      showToast1()
       console.log(data)
       const response = await receipt.post('transfer/upload/gambar', data)
       if (response) {
@@ -62,16 +46,36 @@ const ReceiptScreen = ({ navigation }) => {
             image_name: response.data.file.image_name,
             image_url: response.data.file.image_url
           });
-        navigation.navigate('PaymentScreen')
+          showToast()
+        navigation.navigate('HowtoPayScreen')
+      } else if(error){
+        setErrorMessage('Ukuran file harus < 2 MB')
       }
     } catch (error) {
-      setErrorMessage('Kode unik dan Bukti Pembayaran harus diisi')
+      setErrorMessage('Pastikan ukuran file < 2 MB dan Kode unik diisi')
     }
+  };
+
+  const showToast1 = () => {
+    ToastAndroid.showWithGravity(
+      "Mohon Tunggu..",
+      ToastAndroid.LONG,
+      ToastAndroid.CENTER
+    );
+  };
+
+  const showToast = () => {
+    ToastAndroid.showWithGravity(
+      "Bukti Pembayaran telah diunggah.",
+      ToastAndroid.LONG,
+      ToastAndroid.CENTER
+    );
   };
 
   return (
     <View style={[styles.container, { alignContent: 'center' }]}>
       <Text style={{ fontSize: Scale(20), fontWeight: 'bold' }}>Bukti Pembayaran</Text>
+      {errorMessage? <Text style={{color: 'red'}}>{errorMessage}</Text>: null}
       <View style={{ flex: 1 }}>
         <TextInput style={[styles.input, { marginTop: 20 }]}
           placeholder='Masukkan Kode Unik'
@@ -94,11 +98,8 @@ const ReceiptScreen = ({ navigation }) => {
           style={{ width: Scale(300), height: Scale(300), alignItems: 'center' }}
         />
         <View>
-          {/* <TouchableOpacity>
-          
-        </TouchableOpacity> */}
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: '#E8E8E8' }]}
+            style={styles.button}
             onPress={handleChoosePhoto}
           >
             <Text style={styles.textStyle}>Browse</Text>
@@ -109,8 +110,6 @@ const ReceiptScreen = ({ navigation }) => {
           >
             <Text style={styles.textStyle}>Lanjut</Text>
           </TouchableOpacity>
-          {/* <Button title="Choose Photo" onPress={handleChoosePhoto} /> */}
-          {/* <Button title="Upload Photo" onPress={handleUploadPhoto} /> */}
         </View>
       </View>
     </View>

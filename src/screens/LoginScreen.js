@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import {
-    Text, StyleSheet, Image, View, TextInput, SafeAreaView, Button
+    Text, StyleSheet, Image, View, TextInput, SafeAreaView, Button, ToastAndroid, TouchableOpacity
 } from "react-native";
 import login from "../api/Login";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Scale from "../transforms/Scale";
 
 const LoginScreen = (props) => {
-    const [username, setUsername] = useState('181511063');
-    const [password, setPassword] = useState('rendi321');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
     // useEffect(() => {
@@ -26,6 +26,7 @@ const LoginScreen = (props) => {
             AsyncStorage.setItem("@nis", (await response).data.username);
             console.log(response);
             console.log((await response).data);
+            showToastWithGravity();
             props.navigation.navigate("MainTabScreen");
         } catch (error) {
             console.log(error)
@@ -39,6 +40,14 @@ const LoginScreen = (props) => {
 
     const handleChangePassword = (val) => {
         setPassword(val);
+    };
+
+    const showToastWithGravity = () => {
+        ToastAndroid.showWithGravity(
+          "Login Berhasil",
+          ToastAndroid.SHORT,
+          ToastAndroid.CENTER
+        );
     };
 
     return (
@@ -67,11 +76,12 @@ const LoginScreen = (props) => {
                         onChangeText={handleChangePassword}
                         value={password}
                     />
-                    <Button
-                        title="Login"
-                        color="#368756"
+                    <TouchableOpacity
+                        style={styles.button}
                         onPress={() => loginApi()}
-                    />
+                    >
+                        <Text style={styles.textStyle}>Masuk</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </SafeAreaView>
@@ -109,6 +119,14 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         paddingHorizontal: 10,
         width: 250
+    },
+    button: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2,
+        backgroundColor: "#368756",
+        alignItems: 'center',
+        marginVertical: 5
     }
 });
 

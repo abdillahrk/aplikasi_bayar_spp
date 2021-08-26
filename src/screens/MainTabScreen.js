@@ -9,6 +9,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import HomeScreen from "./TabScreen/HomeScreen";
+import TunggakanScreen from "./TabScreen/TunggakanScreen";
+import HowToPayScreen from "./TabScreen/Payment/HowToPayScreen";
 import PaymentScreen from "./TabScreen/Payment/PaymentScreen";
 import ReceiptScreen from "./TabScreen/Payment/ReceiptScreen";
 import HistoryScreen from "./TabScreen/HistoryScreen";
@@ -19,10 +21,36 @@ const Tab = createMaterialBottomTabNavigator();
   
 const Stack = createStackNavigator();
 
+const Home = () => {
+  // Stack Navigator for Login and Sign up Screen
+  return (
+    <Stack.Navigator initialRouteName="HomeScreen">
+      <Stack.Screen
+        name="Beranda"
+        component={HomeScreen}
+      />
+      <Stack.Screen
+        name="TunggakanScreen"
+        component={TunggakanScreen}
+        options={{
+          title: 'Tunggakan', //Set Header Title
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
+
 const Payment = () => {
   // Stack Navigator for Login and Sign up Screen
   return (
-    <Stack.Navigator initialRouteName="PaymentScreen">
+    <Stack.Navigator initialRouteName="HowtoPayScreen">
+      <Stack.Screen
+        name="HowtoPayScreen"
+        component={HowToPayScreen}
+        options={{
+          title: 'Cara Bayar SPP', //Set Header Title
+        }}
+      />
       <Stack.Screen
         name="PaymentScreen"
         component={PaymentScreen}
@@ -84,29 +112,29 @@ function MainTabScreen() {
         >
           <Tab.Screen 
             name="Beranda" 
-            component={HomeScreen}
+            component={Home}
             options={{
-              tabBarIcon: () => (
-                <MaterialCommunityIcons name="home-outline" size={26} />
-              ),
+              // tabBarIcon: () => (
+              //   <MaterialCommunityIcons name="home-outline" size={26} />
+              // ),
             }}
           />
           <Tab.Screen 
             name="Bayar" 
             component={Payment} 
             options={{
-              tabBarIcon: ({ color }) => (
-                <MaterialCommunityIcons name="credit-card" color={color} size={26} />
-              ),
+              // tabBarIcon: ({ color }) => (
+              //   <MaterialCommunityIcons name="credit-card" color={color} size={26} />
+              // ),
             }}
           />
           <Tab.Screen 
             name="Riwayat" 
             component={History} 
             options={{
-              tabBarIcon: ({ color }) => (
-                <MaterialCommunityIcons name="history" color={color} size={26} />
-              ),
+              // tabBarIcon: ({ color }) => (
+              //   <MaterialCommunityIcons name="history" color={color} size={26} />
+              // ),
               title: 'Riwayat Pembayaran'
             }}
           />
@@ -114,9 +142,9 @@ function MainTabScreen() {
             name="Pengaturan" 
             component={Setting} 
             options={{
-              tabBarIcon: ({ color }) => (
-                <MaterialCommunityIcons name="account-settings-outline" color={color} size={26} />
-              ),
+              // tabBarIcon: ({ color }) => (
+              //   <MaterialCommunityIcons name="account-settings-outline" color={color} size={26} />
+              // ),
             }}
           />
         </Tab.Navigator>
